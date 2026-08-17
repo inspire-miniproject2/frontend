@@ -1,0 +1,5 @@
+import { BackLink, FeedbackBanner, PageHeader, StatusStepper } from '../../shared/ui/krds'
+
+export function ComplaintDetailPage() {
+  return <><PageHeader title="민원 상세" description="CIV-2026-000184 · 처리 중" crumbs={['홈', '내 민원', '민원 상세']} /><BackLink to="/my/complaints" /><StatusStepper current={3} mode="process" /><div className="detail-grid"><section className="summary-panel"><h2>신청 정보</h2><dl className="definition-list"><div><dt>신청일</dt><dd>2026.08.14</dd></div><div><dt>민원 분야</dt><dd>도로·교통</dd></div><div><dt>담당 부서</dt><dd>교통정책과</dd></div><div><dt>알림 채널</dt><dd>이메일</dd></div></dl></section><section className="summary-panel"><h2>어린이보호구역 신호시간 조정 요청</h2><p>등교 시간대 보행 신호가 짧아 안전사고가 우려됩니다. 현장 조사와 신호시간 조정을 요청합니다.</p><p><a href="#download">첨부파일 현장사진.jpg 다운로드</a></p></section></div><section className="history-panel"><h2>처리 이력</h2><ol><li><time>2026.08.14 14:42</time> 민원 접수 완료</li><li><time>2026.08.14 14:43</time> 교통정책과 자동 배정</li><li><time>2026.08.15 09:10</time> 담당자 지정 및 처리 시작</li></ol></section><FeedbackBanner>처리 상태가 변경되면 인앱 및 선택한 이메일 채널로 안내합니다.</FeedbackBanner></>
+}
