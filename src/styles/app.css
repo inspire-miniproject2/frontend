@@ -75,6 +75,7 @@ h2 { margin: 0 0 20px; font-size: 24px; } h3 { font-size: 20px; }
 .summary-tabs button { min-height: 64px; border: 0; border-bottom: 4px solid transparent; background: #fff; font-size: 16px; }.summary-tabs button.active { border-color: var(--minwon-color-primary); background: var(--minwon-color-surface-information); color: var(--minwon-color-primary-strong); }
 .filter-bar { display: grid; grid-template-columns: 2fr 1fr 1fr auto; align-items: end; gap: 16px; padding: 24px; border: 1px solid var(--minwon-color-border); background: var(--minwon-color-surface-subtle); }
 .filter-bar button { min-height: 52px; }.public-filter { grid-template-columns: 2fr 1fr 1fr 1fr auto; }.public-filter button { justify-self: end; min-width: 120px; }.stats-filter { grid-template-columns: 2fr 1fr 1fr auto; }
+.officer-filter { grid-template-columns: 2fr 1fr auto; }
 .result-summary { display: flex; gap: 16px; margin: 32px 0 12px; color: var(--minwon-color-text-subtle); }
 .complaint-loading { display: flex; justify-content: center; margin-top: 32px; }
 .table-scroll { overflow-x: auto; border-block: 1px solid var(--minwon-color-border); }
