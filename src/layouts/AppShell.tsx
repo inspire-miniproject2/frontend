@@ -3,17 +3,21 @@ import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { authSession } from '../features/auth/session'
 import { useAuthSession } from '../features/auth/useAuthSession'
 import { BellIcon, JoinIcon, LoginIcon, LogoutIcon } from '../shared/ui/icons/HeaderIcons'
+import type { UserRole } from '../features/auth/types'
 
-const navigation = [
-  ['/public-responses', '공개 답변'], ['/complaints/new/write', '민원신청'],
-  ['/my/complaints', '내 민원'], ['/officer/complaints', '민원업무함'],
-  ['/admin/statistics', '민원처리현황'],
-] as const
+type MenuItem = readonly [to: string, label: string]
+const publicMenu: MenuItem[] = [['/complaints/new/write', '민원신청'], ['/public-responses', '공개 답변'], ['/guide', '이용안내']]
+const roleMenus: Record<UserRole, MenuItem[]> = {
+  CITIZEN: [['/complaints/new/write', '민원신청'], ['/my/complaints', '내 민원'], ['/public-responses', '공개 답변'], ['/guide', '이용안내']],
+  OFFICER: [['/public-responses', '공개 답변'], ['/officer/complaints', '민원업무함']],
+  ADMIN: [['/public-responses', '공개 답변'], ['/complaints/new/write', '민원신청'], ['/my/complaints', '내 민원'], ['/officer/complaints', '민원업무함'], ['/admin/statistics', '민원처리현황']],
+}
 
 export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
   const session = useAuthSession()
   const navigate = useNavigate()
+  const navigation = session ? roleMenus[session.user.role] : publicMenu
   const logout = () => { authSession.clear(); navigate('/public-responses') }
   return <div className="app-shell">
     <a className="skip-link" href="#main-content">본문 바로가기</a>

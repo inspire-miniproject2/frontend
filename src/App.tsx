@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from './layouts/AppShell'
+import { GuidePage } from './pages/GuidePage'
 import { ComplaintApplicationProvider } from './features/complaint-application/ComplaintApplicationContext'
 import { AdminStatisticsPage } from './pages/admin-statistics/AdminStatisticsPage'
 import { LoginPage } from './pages/auth/LoginPage'
@@ -37,6 +38,7 @@ export function App() {
           <Route path="officer/complaints/:complaintId" element={<OfficerComplaintDetailPage />} />
           <Route path="admin/statistics" element={<AdminStatisticsPage />} />
           <Route path="notifications" element={<NotificationsPage />} />
+          <Route path="guide" element={<GuidePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
