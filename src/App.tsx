@@ -1,48 +1,45 @@
-import { Button } from 'krds-react'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { AppShell } from './layouts/AppShell'
+import { ComplaintApplicationProvider } from './features/complaint-application/ComplaintApplicationContext'
+import { AdminStatisticsPage } from './pages/admin-statistics/AdminStatisticsPage'
+import { LoginPage } from './pages/auth/LoginPage'
+import { SignupPage } from './pages/auth/SignupPage'
+import { ComplaintCompletePage } from './pages/complaint-application/ComplaintCompletePage'
+import { ComplaintConfirmPage } from './pages/complaint-application/ComplaintConfirmPage'
+import { ComplaintWritePage } from './pages/complaint-application/ComplaintWritePage'
+import { NotFoundPage } from './pages/errors/NotFoundPage'
+import { ComplaintDetailPage } from './pages/my-complaints/ComplaintDetailPage'
+import { MyComplaintsPage } from './pages/my-complaints/MyComplaintsPage'
+import { NotificationsPage } from './pages/my-complaints/NotificationsPage'
+import { OfficerComplaintDetailPage } from './pages/officer-complaints/OfficerComplaintDetailPage'
+import { OfficerComplaintsPage } from './pages/officer-complaints/OfficerComplaintsPage'
+import { PublicResponseDetailPage } from './pages/public-responses/PublicResponseDetailPage'
+import { PublicResponsesPage } from './pages/public-responses/PublicResponsesPage'
 
 export function App() {
   return (
-    <>
-      <a className="skip-link" href="#main-content">
-        본문 바로가기
-      </a>
-      <div className="official-banner">
-        <div className="container">이 누리집은 대한민국 공식 전자정부 누리집입니다.</div>
-      </div>
-      <header className="site-header">
-        <div className="container header-inner">
-          <a className="brand" href="/" aria-label="민원온 홈">
-            민원온
-          </a>
-          <nav aria-label="주 메뉴">
-            <ul className="global-nav">
-              <li><a href="#apply">민원신청</a></li>
-              <li><a href="#mine">내 민원</a></li>
-              <li><a href="#public">공개 답변</a></li>
-              <li><a href="#guide">이용안내</a></li>
-            </ul>
-          </nav>
-        </div>
-      </header>
-      <main id="main-content" className="container main-content">
-        <p className="breadcrumb" aria-label="현재 위치">홈</p>
-        <section className="intro" aria-labelledby="page-title">
-          <p className="eyebrow">공공 민원 통합 플랫폼</p>
-          <h1 id="page-title">민원온 프론트엔드</h1>
-          <p>
-            KRDS React를 적용한 반응형 웹앱 프로젝트가 준비되었습니다.
-          </p>
-          <div className="actions">
-            <Button>민원 신청 시작</Button>
-          </div>
-        </section>
-      </main>
-      <footer className="site-footer">
-        <div className="container">
-          <strong>민원온</strong>
-          <p>개인정보처리방침 · 이용안내 · 대표전화 120</p>
-        </div>
-      </footer>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<AppShell />}>
+          <Route index element={<Navigate to="public-responses" replace />} />
+          <Route path="login" element={<LoginPage />} />
+          <Route path="signup" element={<SignupPage />} />
+          <Route path="complaints/new" element={<ComplaintApplicationProvider />}>
+            <Route path="write" element={<ComplaintWritePage />} />
+            <Route path="confirm" element={<ComplaintConfirmPage />} />
+            <Route path="complete/:complaintId" element={<ComplaintCompletePage />} />
+          </Route>
+          <Route path="my/complaints" element={<MyComplaintsPage />} />
+          <Route path="my/complaints/:complaintId" element={<ComplaintDetailPage />} />
+          <Route path="public-responses" element={<PublicResponsesPage />} />
+          <Route path="public-responses/:responseId" element={<PublicResponseDetailPage />} />
+          <Route path="officer/complaints" element={<OfficerComplaintsPage />} />
+          <Route path="officer/complaints/:complaintId" element={<OfficerComplaintDetailPage />} />
+          <Route path="admin/statistics" element={<AdminStatisticsPage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
