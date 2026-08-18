@@ -39,6 +39,6 @@ export function AppShell() {
       <nav id="global-navigation" className={`global-navigation ${menuOpen ? 'is-open' : ''}`} aria-label="주 메뉴"><ul className="container">{navigation.map(([to, label]) => <li key={to}><NavLink to={to} onClick={() => setMenuOpen(false)} className={({ isActive }) => isActive ? 'active' : undefined}>{label}</NavLink></li>)}</ul></nav>
     </header>
     <main id="main-content" className="container main-content" tabIndex={-1}><Outlet /></main>
-    <footer className="site-footer"><div className="container footer-inner"><div><strong className="footer-brand">민원온</strong><p>서울특별시 · 대표전화 120</p></div><nav aria-label="푸터 메뉴"><a href="#privacy">개인정보처리방침</a><a href="#guide">이용안내</a></nav></div></footer>
+    <footer className="site-footer"><div className="container footer-inner"><div><strong className="footer-brand">민원온</strong><p>© (팀)공부함청년</p></div><nav aria-label="푸터 메뉴"><a href="#privacy">개인정보처리방침</a><a href="#guide">이용안내</a></nav></div></footer>
   </div>
 }

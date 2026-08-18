@@ -76,6 +76,7 @@ h2 { margin: 0 0 20px; font-size: 24px; } h3 { font-size: 20px; }
 .filter-bar { display: grid; grid-template-columns: 2fr 1fr 1fr auto; align-items: end; gap: 16px; padding: 24px; border: 1px solid var(--minwon-color-border); background: var(--minwon-color-surface-subtle); }
 .filter-bar button { min-height: 52px; }.public-filter { grid-template-columns: 2fr 1fr 1fr auto; }.stats-filter { grid-template-columns: 2fr 1fr 1fr auto; }
 .result-summary { display: flex; gap: 16px; margin: 32px 0 12px; color: var(--minwon-color-text-subtle); }
+.complaint-loading { display: flex; justify-content: center; margin-top: 32px; }
 .table-scroll { overflow-x: auto; border-block: 1px solid var(--minwon-color-border); }
 table { width: 100%; border-collapse: collapse; min-width: 760px; }
 th, td { padding: 16px 12px; border-bottom: 1px solid #dfe3e8; text-align: left; }

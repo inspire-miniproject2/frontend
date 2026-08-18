@@ -1,5 +1,6 @@
 import { delay, http, HttpResponse } from 'msw'
 import { complaintCategories } from '../data/complaint'
+import { myComplaints } from '../data/myComplaints'
 
 const apiUrl = '*/api/v1'
 let sequence = 185
@@ -7,6 +8,30 @@ let sequence = 185
 const failure = (status: number, code: string, message: string, details: unknown = null) => HttpResponse.json({ success: false, error: { code, message, details }, requestId: `mock-${crypto.randomUUID()}` }, { status })
 
 export const complaintHandlers = [
+  http.get(`${apiUrl}/complaints/my`, async ({ request }) => {
+    await delay(300)
+    const params = new URL(request.url).searchParams
+    const keyword = params.get('keyword')?.trim().toLowerCase() ?? ''
+    const categoryCode = params.get('categoryCode')
+    const status = params.get('status')
+    const page = Math.max(0, Number(params.get('page') ?? 0)); const size = Math.max(1, Number(params.get('size') ?? 20))
+    const filtered = myComplaints.filter((item) => (!keyword || item.title.toLowerCase().includes(keyword) || item.complaintNo.toLowerCase().includes(keyword)) && (!categoryCode || item.categoryCode === categoryCode) && (!status || item.currentStatus === status))
+    const count = (value: string) => myComplaints.filter((item) => item.currentStatus === value).length
+    const content = filtered.slice(page * size, (page + 1) * size).map(({ content: _content, attachments: _attachments, statusHistories: _histories, notifyChannels: _channels, response: _response, ...item }) => item)
+    return HttpResponse.json({ success: true, data: { summary: { total: myComplaints.length, received: count('RECEIVED'), assigned: count('ASSIGNED'), inProgress: count('IN_PROGRESS'), completed: count('COMPLETED') }, content, page, size, totalElements: filtered.length, totalPages: Math.ceil(filtered.length / size) }, message: '내 민원 목록을 조회했습니다.' })
+  }),
+  http.get(`${apiUrl}/complaints/:complaintId`, async ({ params }) => {
+    await delay(300)
+    const complaint = myComplaints.find((item) => item.complaintId === Number(params.complaintId))
+    if (!complaint) return failure(404, 'RESOURCE_NOT_FOUND', '존재하지 않는 민원입니다.')
+    return HttpResponse.json({ success: true, data: complaint, message: '민원 상세를 조회했습니다.' })
+  }),
+  http.get(`${apiUrl}/complaints/:complaintId/attachments/:attachmentId`, async ({ params }) => {
+    const complaint = myComplaints.find((item) => item.complaintId === Number(params.complaintId))
+    const attachment = complaint?.attachments.find((item) => item.attachmentId === Number(params.attachmentId))
+    if (!attachment) return failure(404, 'RESOURCE_NOT_FOUND', '첨부파일이 없습니다.')
+    return new HttpResponse(new Blob(['MinwonON mock attachment']), { headers: { 'Content-Type': 'application/octet-stream', 'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(attachment.originalFilename)}` } })
+  }),
   http.get(`${apiUrl}/complaint-categories`, async ({ request }) => {
     await delay(250)
     const activeOnly = new URL(request.url).searchParams.get('activeOnly') !== 'false'

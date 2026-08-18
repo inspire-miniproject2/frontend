@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from './layouts/AppShell'
 import { GuidePage } from './pages/GuidePage'
 import { ComplaintApplicationProvider } from './features/complaint-application/ComplaintApplicationContext'
+import { RequireRole } from './features/auth/RequireRole'
 import { AdminStatisticsPage } from './pages/admin-statistics/AdminStatisticsPage'
 import { LoginPage } from './pages/auth/LoginPage'
 import { SignupPage } from './pages/auth/SignupPage'
@@ -25,10 +26,12 @@ export function App() {
           <Route index element={<Navigate to="public-responses" replace />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="signup" element={<SignupPage />} />
-          <Route path="complaints/new" element={<ComplaintApplicationProvider />}>
-            <Route path="write" element={<ComplaintWritePage />} />
-            <Route path="confirm" element={<ComplaintConfirmPage />} />
-            <Route path="complete/:complaintId" element={<ComplaintCompletePage />} />
+          <Route element={<RequireRole allowedRoles={['CITIZEN', 'ADMIN']}><ComplaintApplicationProvider /></RequireRole>}>
+            <Route path="complaints/new">
+              <Route path="write" element={<ComplaintWritePage />} />
+              <Route path="confirm" element={<ComplaintConfirmPage />} />
+              <Route path="complete/:complaintId" element={<ComplaintCompletePage />} />
+            </Route>
           </Route>
           <Route path="my/complaints" element={<MyComplaintsPage />} />
           <Route path="my/complaints/:complaintId" element={<ComplaintDetailPage />} />
