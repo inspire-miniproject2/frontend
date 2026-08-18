@@ -22,7 +22,9 @@ export function LoginPage() {
     try {
       const result = await login({ loginId, password })
       authSession.set(result)
-      const target = result.user.role === 'ADMIN' ? '/admin/statistics' : result.user.role === 'OFFICER' ? '/officer/complaints' : '/my/complaints'
+      const requestedTarget = typeof location.state?.returnTo === 'string' ? location.state.returnTo : null
+      const canReturn = requestedTarget?.startsWith('/complaints/new') && ['CITIZEN', 'ADMIN'].includes(result.user.role)
+      const target = canReturn ? requestedTarget : result.user.role === 'ADMIN' ? '/admin/statistics' : result.user.role === 'OFFICER' ? '/officer/complaints' : '/my/complaints'
       navigate(target, { replace: true })
     } catch (reason) {
       setError(reason instanceof ApiError ? reason.message : '로그인 중 오류가 발생했습니다. 다시 시도해 주세요.')
