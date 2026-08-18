@@ -7,8 +7,8 @@ const failure = () => HttpResponse.json({ success: false, error: { code: 'RESOUR
 export const publicResponseHandlers = [
   http.get(`${apiUrl}/public-responses`, async ({ request }) => {
     await delay(300)
-    const params = new URL(request.url).searchParams; const keyword = params.get('keyword')?.trim().toLowerCase() ?? ''; const categoryCode = params.get('categoryCode'); const departmentId = Number(params.get('departmentId') || 0); const from = params.get('completedFrom'); const to = params.get('completedTo')
-    const content = publicResponses.filter((item) => (!keyword || item.title.toLowerCase().includes(keyword) || publicResponseDetails.find((detail) => detail.responseId === item.responseId)?.responseContent.toLowerCase().includes(keyword)) && (!categoryCode || item.categoryCode === categoryCode) && (!departmentId || item.departmentId === departmentId) && (!from || item.completedAt >= from) && (!to || item.completedAt <= to))
+    const params = new URL(request.url).searchParams; const keyword = params.get('keyword')?.trim().toLowerCase() ?? ''; const categoryCode = params.get('categoryCode'); const from = params.get('completedFrom'); const to = params.get('completedTo')
+    const content = publicResponses.filter((item) => (!keyword || item.title.toLowerCase().includes(keyword) || publicResponseDetails.find((detail) => detail.responseId === item.responseId)?.responseContent.toLowerCase().includes(keyword)) && (!categoryCode || item.categoryCode === categoryCode) && (!from || item.completedAt >= from) && (!to || item.completedAt <= to))
     return HttpResponse.json({ success: true, data: { content, totalElements: content.length }, message: '공개 답변 목록을 조회했습니다.' })
   }),
   http.get(`${apiUrl}/public-responses/:responseId`, async ({ params }) => {
