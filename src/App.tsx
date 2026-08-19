@@ -18,12 +18,13 @@ import { OfficerComplaintDetailPage } from './pages/officer-complaints/OfficerCo
 import { OfficerComplaintsPage } from './pages/officer-complaints/OfficerComplaintsPage'
 import { PublicResponseDetailPage } from './pages/public-responses/PublicResponseDetailPage'
 import { PublicResponsesPage } from './pages/public-responses/PublicResponsesPage'
+import { NotificationProvider } from './features/notifications/NotificationContext'
 
 export function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<AppShell />}>
+        <Route element={<NotificationProvider><AppShell /></NotificationProvider>}>
           <Route index element={<Navigate to="public-responses" replace />} />
           <Route path="login" element={<PublicOnly><LoginPage /></PublicOnly>} />
           <Route path="signup" element={<PublicOnly><SignupPage /></PublicOnly>} />
