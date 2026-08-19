@@ -12,7 +12,7 @@ const publicMenu: MenuItem[] = [['/complaints/new/write', '민원신청'], ['/pu
 const roleMenus: Record<UserRole, MenuItem[]> = {
   CITIZEN: [['/complaints/new/write', '민원신청'], ['/my/complaints', '내 민원'], ['/public-responses', '공개 답변'], ['/guide', '이용안내']],
   OFFICER: [['/public-responses', '공개 답변'], ['/officer/complaints', '민원업무함']],
-  ADMIN: [['/public-responses', '공개 답변'], ['/complaints/new/write', '민원신청'], ['/my/complaints', '내 민원'], ['/officer/complaints', '민원업무함'], ['/admin/statistics', '민원처리현황']],
+  ADMIN: [['/public-responses', '공개 답변'], ['/officer/complaints', '민원업무함'], ['/admin/statistics', '민원처리현황']],
 }
 
 export function AppShell() {
@@ -87,7 +87,7 @@ export function AppShell() {
       </div>
       <nav id="global-navigation" className={`global-navigation ${menuOpen ? 'is-open' : ''}`} aria-label="주 메뉴"><ul className="container">{navigation.map(([to, label]) => <li key={to}><NavLink to={to} onClick={() => setMenuOpen(false)} className={({ isActive }) => isActive ? 'active' : undefined}>{label}</NavLink></li>)}</ul></nav>
     </header>
-    <main id="main-content" className="container main-content" tabIndex={-1}><Outlet /></main>
+    <main id="main-content" className="container main-content"><Outlet /></main>
     <footer className="site-footer"><div className="container footer-inner"><div><strong className="footer-brand">민원온</strong><p>© (팀)공부함청년</p></div><nav aria-label="푸터 메뉴"><a href="/guide">이용안내</a></nav></div></footer>
   </div>
 }
