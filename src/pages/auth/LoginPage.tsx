@@ -7,10 +7,34 @@ import { ApiError } from '../../shared/api/contracts'
 import { FeedbackBanner, FormField, PageHeader } from '../../shared/ui/krds'
 import { TextInput } from '../components/FormControls'
 
+const SAVED_LOGIN_ID_KEY = 'minwonon.savedLoginId'
+
+function getSavedLoginId() {
+  try {
+    return localStorage.getItem(SAVED_LOGIN_ID_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+function updateSavedLoginId(loginId: string, rememberLoginId: boolean) {
+  try {
+    if (rememberLoginId) {
+      localStorage.setItem(SAVED_LOGIN_ID_KEY, loginId)
+      return
+    }
+
+    localStorage.removeItem(SAVED_LOGIN_ID_KEY)
+  } catch {
+    // 저장소 접근이 제한된 환경에서도 로그인은 계속 진행합니다.
+  }
+}
+
 export function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const [loginId, setLoginId] = useState('')
+  const [loginId, setLoginId] = useState(getSavedLoginId)
+  const [rememberLoginId, setRememberLoginId] = useState(() => getSavedLoginId().length > 0)
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -22,6 +46,7 @@ export function LoginPage() {
     try {
       const result = await login({ loginId, password })
       authSession.set(result)
+      updateSavedLoginId(loginId, rememberLoginId)
       const requestedTarget = typeof location.state?.returnTo === 'string' ? location.state.returnTo : null
       const canReturn = requestedTarget?.startsWith('/complaints/new') && ['CITIZEN', 'ADMIN'].includes(result.user.role)
       // const target = canReturn ? requestedTarget : result.user.role === 'ADMIN' ? '/admin/statistics' : result.user.role === 'OFFICER' ? '/officer/complaints' : '/my/complaints'
@@ -46,8 +71,14 @@ export function LoginPage() {
       </FormField>
       {/*<label className="check-line"><input type="checkbox" /> 아이디 저장</label>*/}
       <div className="krds-form-check">
-        <input type="checkbox" name="chk_1" id="chk_1"/>
-        <label className="check-line" htmlFor="chk_1">아이디 저장</label>
+        <input
+          type="checkbox"
+          name="rememberLoginId"
+          id="rememberLoginId"
+          checked={rememberLoginId}
+          onChange={(event) => setRememberLoginId(event.target.checked)}
+        />
+        <label className="check-line" htmlFor="rememberLoginId">아이디 저장</label>
       </div>
       <Button type="submit" size="large" className="full-button" disabled={submitting}>{submitting ? '로그인 중...' : '로그인'}</Button>
       <p className="centered-link">처음 방문하셨나요? <Link to="/signup">회원가입</Link></p>

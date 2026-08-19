@@ -12,7 +12,7 @@ export function ComplaintConfirmPage() {
   const [confirmed, setConfirmed] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const isValidDraft = draft.categoryId !== null && draft.title.length >= 5 && draft.content.length >= 20
+  const isValidDraft = draft.categoryId !== null && Boolean(draft.categoryCode) && draft.title.trim().length >= 5 && draft.content.trim().length >= 20
 
   useEffect(() => { if (!isValidDraft) navigate('/complaints/new/write', { replace: true }) }, [isValidDraft, navigate])
 
@@ -23,7 +23,7 @@ export function ComplaintConfirmPage() {
     try {
       const created = await createComplaint(draft)
       setResult(created)
-      navigate(`/complaints/new/complete/${created.complaintNo}`)
+      navigate(`/complaints/new/complete/${created.complaintId}`)
     } catch (reason) {
       setError(reason instanceof ApiError ? reason.message : '민원 접수 중 오류가 발생했습니다. 다시 시도해 주세요.')
     } finally {

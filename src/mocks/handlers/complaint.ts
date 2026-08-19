@@ -41,13 +41,15 @@ export const complaintHandlers = [
     await delay(500)
     const body = await request.formData()
     const categoryId = Number(body.get('categoryId'))
+    const categoryCode = String(body.get('categoryCode') ?? '')
     const title = String(body.get('title') ?? '').trim()
     const content = String(body.get('content') ?? '').trim()
-    const notifyChannels = body.getAll('notifyChannels[]').map(String)
+    const notifyChannels = body.getAll('notifyChannels').map(String)
     const category = complaintCategories.find((item) => item.categoryId === categoryId)
 
     const details: Record<string, string> = {}
     if (!category) details.categoryId = '활성 상태인 민원 분야를 선택해 주세요.'
+    if (category && category.categoryCode !== categoryCode) details.categoryCode = '민원 분야 코드가 일치하지 않습니다.'
     if (title.length < 5 || title.length > 100) details.title = '민원 제목을 5~100자로 입력해 주세요.'
     if (content.length < 20 || content.length > 3000) details.content = '민원 내용을 20~3000자로 입력해 주세요.'
     if (notifyChannels.some((channel) => channel !== 'EMAIL')) details.notifyChannels = 'EMAIL 채널만 선택할 수 있습니다.'
