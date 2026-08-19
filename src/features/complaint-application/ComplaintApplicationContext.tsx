@@ -2,7 +2,7 @@ import { createContext, useContext, useMemo, useState, type ReactNode } from 're
 import { Outlet } from 'react-router-dom'
 import type { ComplaintCreateResult, ComplaintDraft } from './types'
 
-const initialDraft: ComplaintDraft = { categoryId: null, categoryName: '', title: '', content: '', attachmentFiles: [], notifyChannels: ['EMAIL'] }
+const initialDraft: ComplaintDraft = { categoryId: null, categoryName: '', categoryCode: '', title: '', content: '', attachmentFiles: [], notifyChannels: ['EMAIL'] }
 
 type ComplaintApplicationState = {
   draft: ComplaintDraft

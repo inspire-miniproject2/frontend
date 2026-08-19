@@ -10,6 +10,7 @@ export type ComplaintCategory = {
 export type ComplaintDraft = {
   categoryId: number | null
   categoryName: string
+  categoryCode: string
   title: string
   content: string
   attachmentFiles: File[]

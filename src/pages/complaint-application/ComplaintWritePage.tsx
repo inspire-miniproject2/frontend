@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { getComplaintCategories } from '../../features/complaint-application/api'
 import { useComplaintApplication } from '../../features/complaint-application/ComplaintApplicationContext'
 import type { ComplaintCategory } from '../../features/complaint-application/types'
+import { ApiError } from '../../shared/api/contracts'
 import { FeedbackBanner, FormField, PageHeader, StatusStepper } from '../../shared/ui/krds'
 import { SelectInput, TextInput } from '../components/FormControls'
 
@@ -14,7 +15,7 @@ export function ComplaintWritePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => { getComplaintCategories().then(setCategories).catch(() => setError('민원 분야를 불러오지 못했습니다. 다시 시도해 주세요.')).finally(() => setLoading(false)) }, [])
+  useEffect(() => { getComplaintCategories().then(setCategories).catch((reason) => setError(reason instanceof ApiError ? reason.message : '민원 분야를 불러오지 못했습니다. 다시 시도해 주세요.')).finally(() => setLoading(false)) }, [])
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault()
@@ -28,7 +29,7 @@ export function ComplaintWritePage() {
       <FeedbackBanner>제출한 민원은 직접 수정할 수 없습니다. 변경이 필요하면 취소 후 다시 신청해야 합니다.</FeedbackBanner>
       <form className="application-form" onSubmit={submit}>
         <FormField id="complaint-category" label="민원 분야" required><SelectInput id="complaint-category"
-          value={draft.categoryId ?? ''} disabled={loading} required onChange={(event) => { const category = categories.find((item) => item.categoryId === Number(event.target.value)); setDraft({ ...draft, categoryId: category?.categoryId ?? null, categoryName: category?.categoryName ?? '' }) }}>
+          value={draft.categoryId ?? ''} disabled={loading} required onChange={(event) => { const category = categories.find((item) => item.categoryId === Number(event.target.value)); setDraft({ ...draft, categoryId: category?.categoryId ?? null, categoryName: category?.categoryName ?? '', categoryCode: category?.categoryCode ?? '' }) }}>
           <option value="">{loading ? '불러오는 중...' : '선택하세요'}</option>
           {categories.map((category) => <option key={category.categoryId} value={category.categoryId}>{category.categoryName}</option>)}
         </SelectInput></FormField>
@@ -52,7 +53,7 @@ export function ComplaintWritePage() {
         </div>
         <div className="button-row">
           <Button variant="secondary" as={Link} to="/my/complaints">취소</Button>
-          <Button type="submit" disabled={loading}>다음: 내용 확인</Button>
+          <Button type="submit" disabled={loading || Boolean(error)}>다음: 내용 확인</Button>
         </div>
       </form>
     </section>

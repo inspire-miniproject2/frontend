@@ -1,8 +1,7 @@
 import { Button } from 'krds-react'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { getComplaintCategories } from '../../features/complaint-application/api'
-import type { ComplaintCategory } from '../../features/complaint-application/types'
+import { useComplaintCategories } from '../../features/complaint-application/useComplaintCategories'
 import { getPublicResponses } from '../../features/public-responses/api'
 import type { PublicResponseList, PublicResponseQuery } from '../../features/public-responses/types'
 import { ApiError } from '../../shared/api/contracts'
@@ -14,12 +13,9 @@ export function PublicResponsesPage() {
   const [data, setData] = useState<PublicResponseList | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [categories, setCategories] = useState<ComplaintCategory[]>([])
-  const [categoriesLoading, setCategoriesLoading] = useState(true)
-  const [categoryError, setCategoryError] = useState('')
+  const { categories, categoriesLoading, categoryError } = useComplaintCategories()
   const [validationError, setValidationError] = useState('')
   useEffect(() => { let active = true; setLoading(true); setError(''); getPublicResponses(query).then((result) => { if (active) setData(result) }).catch((reason) => { if (active) setError(reason instanceof ApiError ? reason.message : '공개 답변 목록을 불러오지 못했습니다.') }).finally(() => { if (active) setLoading(false) }); return () => { active = false } }, [query])
-  useEffect(() => { let active = true; getComplaintCategories(true).then((result) => { if (active) setCategories(result) }).catch((reason) => { if (active) setCategoryError(reason instanceof ApiError ? reason.message : '민원 분야 목록을 불러오지 못했습니다.') }).finally(() => { if (active) setCategoriesLoading(false) }); return () => { active = false } }, [])
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = new FormData(event.currentTarget)
