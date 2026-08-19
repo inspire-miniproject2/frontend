@@ -5,6 +5,7 @@ import { getComplaintCategories } from '../../features/complaint-application/api
 import type { ComplaintCategory } from '../../features/complaint-application/types'
 import { getPublicResponses } from '../../features/public-responses/api'
 import type { PublicResponseList, PublicResponseQuery } from '../../features/public-responses/types'
+import { ApiError } from '../../shared/api/contracts'
 import { FeedbackBanner, FormField, PageHeader } from '../../shared/ui/krds'
 import { SelectInput, TextInput } from '../components/FormControls'
 
@@ -17,8 +18,8 @@ export function PublicResponsesPage() {
   const [categoriesLoading, setCategoriesLoading] = useState(true)
   const [categoryError, setCategoryError] = useState('')
   const [validationError, setValidationError] = useState('')
-  useEffect(() => { let active = true; setLoading(true); setError(''); getPublicResponses(query).then((result) => { if (active) setData(result) }).catch(() => { if (active) setError('공개 답변 목록을 불러오지 못했습니다.') }).finally(() => { if (active) setLoading(false) }); return () => { active = false } }, [query])
-  useEffect(() => { let active = true; getComplaintCategories(true).then((result) => { if (active) setCategories(result) }).catch(() => { if (active) setCategoryError('민원 분야 목록을 불러오지 못했습니다.') }).finally(() => { if (active) setCategoriesLoading(false) }); return () => { active = false } }, [])
+  useEffect(() => { let active = true; setLoading(true); setError(''); getPublicResponses(query).then((result) => { if (active) setData(result) }).catch((reason) => { if (active) setError(reason instanceof ApiError ? reason.message : '공개 답변 목록을 불러오지 못했습니다.') }).finally(() => { if (active) setLoading(false) }); return () => { active = false } }, [query])
+  useEffect(() => { let active = true; getComplaintCategories(true).then((result) => { if (active) setCategories(result) }).catch((reason) => { if (active) setCategoryError(reason instanceof ApiError ? reason.message : '민원 분야 목록을 불러오지 못했습니다.') }).finally(() => { if (active) setCategoriesLoading(false) }); return () => { active = false } }, [])
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = new FormData(event.currentTarget)
@@ -49,6 +50,6 @@ export function PublicResponsesPage() {
     {categoryError && <FeedbackBanner tone="error">{categoryError}</FeedbackBanner>}
     {loading && <div className="complaint-loading"><div className="krds-spinner" role="status"><span className="sr-only">로딩 중</span>공개 답변을 불러오는 중입니다.</div></div>}
     {error && <FeedbackBanner tone="error">{error}</FeedbackBanner>}
-    {!loading && !error && data && <><div className="result-summary"><strong>총 {data.totalElements}건</strong><span>최신 답변순</span></div>{data.content.length === 0 ? <FeedbackBanner>검색 조건에 맞는 공개 답변이 없습니다.</FeedbackBanner> : <ul className="response-list">{data.content.map((item) => <li key={item.responseId}><span>{item.categoryName}</span><Link to={`/public-responses/${item.responseId}`}>{item.title}</Link><span>{item.departmentName} · {item.completedAt.replaceAll('-', '.')}</span><strong>{item.statusLabel}</strong></li>)}</ul>}</>}
+    {!loading && !error && data && <><div className="result-summary"><strong>총 {data.content.length}건</strong><span>최신 답변순</span></div>{data.content.length === 0 ? <FeedbackBanner>검색 조건에 맞는 공개 답변이 없습니다.</FeedbackBanner> : <ul className="response-list">{data.content.map((item) => <li key={item.responseId}><Link to={`/public-responses/${item.responseId}`}>{item.title}</Link><span>{item.departmentName} · {item.completedAt.replaceAll('-', '.')}</span><strong>{item.statusLabel}</strong></li>)}</ul>}</>}
   </>)
 }

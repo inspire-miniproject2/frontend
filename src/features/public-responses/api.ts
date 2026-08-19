@@ -7,6 +7,7 @@ export function getPublicResponses(query: PublicResponseQuery = {}) {
   if (query.categoryCode) params.set('categoryCode', query.categoryCode)
   if (query.completedFrom) params.set('completedFrom', query.completedFrom)
   if (query.completedTo) params.set('completedTo', query.completedTo)
-  return apiClient.get<PublicResponseList>(`/public-responses?${params}`)
+  const search = params.toString()
+  return apiClient.get<PublicResponseList>(`/public-responses${search ? `?${search}` : ''}`)
 }
 export function getPublicResponse(responseId: number) { return apiClient.get<PublicResponseDetail>(`/public-responses/${responseId}`) }
