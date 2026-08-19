@@ -31,18 +31,9 @@ pnpm build
 - 배포 컨테이너는 백엔드의 `g-civil-network`에 연결되며 Nginx가 `/api/` 요청을 `gateway-service:8080`으로 전달합니다.
 - 배포 health check가 실패하면 직전 프론트엔드 이미지로 자동 복구합니다.
 
-GitHub 저장소의 `development` Environment에 다음 Secrets를 등록해야 합니다.
+GitHub Actions은 OIDC로 `GitHubActionsFrontendDeploy` IAM Role을 임시로 인수하고, Systems Manager Run Command로 배포합니다. AWS access key와 EC2 SSH private key를 GitHub Secrets에 저장하지 않습니다. IAM Role의 신뢰 정책은 `repo:inspire-miniproject2/frontend:environment:development`로 제한합니다.
 
-| Secret | 용도 |
-| --- | --- |
-| `EC2_HOST` | 개발 EC2 공개 IP 또는 도메인 |
-| `EC2_USER` | SSH 사용자(예: `ubuntu`) |
-| `EC2_SSH_KEY` | EC2 SSH private key 전체 내용 |
-| `EC2_HOST_FINGERPRINT` | EC2 SSH host key의 SHA256 fingerprint |
-| `GHCR_USER` | EC2에서 GHCR 로그인에 사용할 GitHub 사용자 |
-| `GHCR_READ_TOKEN` | `read:packages` 권한만 가진 GitHub token |
-
-EC2에는 Docker와 백엔드 Compose가 먼저 실행되어 `g-civil-network` 및 `gateway-service`가 존재해야 합니다. 보안 그룹은 사용자 접속용 TCP 80과 GitHub Actions SSH 배포용 TCP 22를 허용해야 합니다.
+EC2에는 SSM Agent, Docker, 백엔드 Compose가 먼저 실행되어 `g-civil-network` 및 `gateway-service`가 존재해야 합니다. 또한 `ubuntu` 사용자로 GHCR `read:packages` 로그인이 1회 완료되어야 합니다. 보안 그룹은 사용자 접속용 TCP 80만 외부에 허용하며 GitHub Actions 배포를 위해 TCP 22를 열 필요가 없습니다.
 
 ## 디자인 기준
 
