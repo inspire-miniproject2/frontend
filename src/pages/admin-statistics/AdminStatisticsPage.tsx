@@ -60,8 +60,7 @@ export function AdminStatisticsPage() {
     setQuery({ fromDate, toDate, departmentId: department ? Number(department) : undefined })
   }
 
-  const latest = summary.latest
-  const maxStatusCount = latest ? Math.max(1, latest.receivedStatusCount, latest.assignedStatusCount, latest.inProgressStatusCount, latest.completedStatusCount) : 1
+  const maxStatusCount = Math.max(1, summary.received, summary.assigned, summary.inProgress, summary.completed)
   const departmentLabel = query.departmentId ? departments.find((item) => item.id === query.departmentId)?.name ?? `부서 ${query.departmentId}` : '전체 부서'
 
   return <>
@@ -76,36 +75,55 @@ export function AdminStatisticsPage() {
     {loading && <div className="complaint-loading"><div className="krds-spinner" role="status"><span className="sr-only">로딩 중</span>통계를 불러오는 중입니다.</div></div>}
     {error && <FeedbackBanner tone="error">{error}</FeedbackBanner>}
     {!loading && !error && data && content.length === 0 && <FeedbackBanner>선택한 기간과 부서에 집계된 통계가 없습니다.</FeedbackBanner>}
-    {!loading && !error && latest && <>
-      <p className="statistics-scope"><strong>{departmentLabel}</strong> · {formatDate(query.fromDate)}부터 {formatDate(query.toDate)}까지 · 최신 집계일 {formatDate(latest.statisticDate)}</p>
+    {!loading && !error && content.length > 0 && <>
+      <p className="statistics-scope"><strong>{departmentLabel}</strong> · {formatDate(query.fromDate)}부터 {formatDate(query.toDate)}까지 · {content.length}개 일자 집계</p>
       <div className="metric-grid">
         <MetricCard label="기간 신규 접수" value={`${numberFormat.format(summary.newReceived)}건`} caption={`${content.length}일 집계 합계`} />
         <MetricCard label="기간 신규 완료" value={`${numberFormat.format(summary.newCompleted)}건`} caption={`${content.length}일 집계 합계`} />
-        <MetricCard label="최신일 처리 대기·진행" value={`${numberFormat.format(summary.active)}건`} caption="접수·배정·처리 중 합계" />
+        <MetricCard label="처리 완료율" value={`${summary.completionRate.toFixed(1)}%`} caption="기간 접수 대비 완료 비율" />
         <MetricCard label="평균 처리시간" value={`${summary.averageHours.toFixed(1)}시간`} caption="완료 건수 가중 평균" />
       </div>
       <div className="chart-grid">
-        <section className="chart-card"><h2>최신일 상태별 현황</h2><p>{formatDate(latest.statisticDate)} 기준이며 색상 외에 상태명과 건수를 함께 표시합니다.</p><div className="bar-chart" role="img" aria-label={statusAriaLabel(latest)}>
-          <span style={{ width: percent(latest.completedStatusCount, maxStatusCount) }}>완료 {numberFormat.format(latest.completedStatusCount)}</span>
-          <span style={{ width: percent(latest.inProgressStatusCount, maxStatusCount) }}>처리 중 {numberFormat.format(latest.inProgressStatusCount)}</span>
-          <span style={{ width: percent(latest.assignedStatusCount, maxStatusCount) }}>배정 {numberFormat.format(latest.assignedStatusCount)}</span>
-          <span style={{ width: percent(latest.receivedStatusCount, maxStatusCount) }}>접수 {numberFormat.format(latest.receivedStatusCount)}</span>
+        <section className="chart-card"><h2>기간 상태별 현황</h2><p>선택 기간 전체 집계이며 색상 외에 상태명과 건수를 함께 표시합니다.</p><div className="bar-chart" role="img" aria-label={statusAriaLabel(summary)}>
+          <span style={{ width: percent(summary.completed, maxStatusCount) }}>완료 {numberFormat.format(summary.completed)}</span>
+          <span style={{ width: percent(summary.inProgress, maxStatusCount) }}>처리 중 {numberFormat.format(summary.inProgress)}</span>
+          <span style={{ width: percent(summary.assigned, maxStatusCount) }}>배정 {numberFormat.format(summary.assigned)}</span>
+          <span style={{ width: percent(summary.received, maxStatusCount) }}>접수 {numberFormat.format(summary.received)}</span>
         </div></section>
-        <section className="chart-card"><h2>처리기한 현황</h2><dl className="definition-list"><div><dt>기한 임박</dt><dd>{numberFormat.format(latest.deadlineApproachingCount)}건</dd></div><div><dt>기한 초과</dt><dd>{numberFormat.format(latest.overdueCount)}건</dd></div><div><dt>신규 완료</dt><dd>{numberFormat.format(latest.newCompletedCount)}건</dd></div><div><dt>평균 처리시간</dt><dd>{Number(latest.averageProcessingHours).toFixed(1)}시간</dd></div></dl></section>
+        <section className="chart-card"><h2>기간 처리 요약</h2><dl className="definition-list"><div><dt>신규 접수</dt><dd>{numberFormat.format(summary.newReceived)}건</dd></div><div><dt>처리 완료</dt><dd>{numberFormat.format(summary.newCompleted)}건</dd></div><div><dt>처리 대기·진행</dt><dd>{numberFormat.format(summary.active)}건</dd></div><div><dt>평균 처리시간</dt><dd>{summary.averageHours.toFixed(1)}시간</dd></div></dl></section>
       </div>
-      <section className="table-section"><h2>일별 처리 현황</h2><div className="table-scroll" tabIndex={0} aria-label="일별 처리 통계 표, 가로로 스크롤할 수 있습니다"><table><caption className="sr-only">선택 기간의 일별 민원 처리 통계</caption><thead><tr><th>기준일</th><th>신규 접수</th><th>신규 완료</th><th>접수 상태</th><th>배정 상태</th><th>처리 중</th><th>완료 상태</th><th>기한 임박</th><th>기한 초과</th><th>평균 처리시간</th></tr></thead><tbody>{[...content].reverse().map((item) => <tr key={item.statisticDate}><th scope="row">{formatDate(item.statisticDate)}</th><td>{numberFormat.format(item.newReceivedCount)}</td><td>{numberFormat.format(item.newCompletedCount)}</td><td>{numberFormat.format(item.receivedStatusCount)}</td><td>{numberFormat.format(item.assignedStatusCount)}</td><td>{numberFormat.format(item.inProgressStatusCount)}</td><td>{numberFormat.format(item.completedStatusCount)}</td><td>{numberFormat.format(item.deadlineApproachingCount)}</td><td>{numberFormat.format(item.overdueCount)}</td><td>{Number(item.averageProcessingHours).toFixed(1)}시간</td></tr>)}</tbody></table></div></section>
+      <section className="table-section">
+        <h2>일별 처리 현황</h2>
+        <div className="table-scroll" tabIndex={0} aria-label="일별 처리 통계 표, 가로로 스크롤할 수 있습니다">
+          <table><caption className="sr-only">선택 기간의 일별 민원 처리 통계</caption>
+            <thead><tr><th>기준일</th><th>신규 접수</th><th>신규 완료</th><th>접수 상태</th><th>배정 상태</th><th>처리 중</th><th>완료 상태</th><th>평균 처리시간</th></tr></thead>
+            <tbody>{[...content].reverse().map((item) => <tr key={item.statisticDate}><th scope="row">{formatDate(item.statisticDate)}</th><td>{numberFormat.format(item.newReceivedCount)}</td><td>{numberFormat.format(item.newCompletedCount)}</td><td>{numberFormat.format(item.receivedStatusCount)}</td><td>{numberFormat.format(item.assignedStatusCount)}</td><td>{numberFormat.format(item.inProgressStatusCount)}</td><td>{numberFormat.format(item.completedStatusCount)}</td>
+        <td>{Number(item.averageProcessingHours).toFixed(1)}시간</td></tr>)}</tbody></table></div></section>
     </>}
   </>
 }
 
 function summarize(content: DailyStatistic[]) {
-  const latest = content.at(-1) ?? null
   const newReceived = content.reduce((sum, item) => sum + item.newReceivedCount, 0)
   const newCompleted = content.reduce((sum, item) => sum + item.newCompletedCount, 0)
+  const received = content.reduce((sum, item) => sum + item.receivedStatusCount, 0)
+  const assigned = content.reduce((sum, item) => sum + item.assignedStatusCount, 0)
+  const inProgress = content.reduce((sum, item) => sum + item.inProgressStatusCount, 0)
+  const completed = content.reduce((sum, item) => sum + item.completedStatusCount, 0)
   const processingHours = content.reduce((sum, item) => sum + Number(item.averageProcessingHours) * item.newCompletedCount, 0)
-  return { latest, newReceived, newCompleted, active: latest ? latest.receivedStatusCount + latest.assignedStatusCount + latest.inProgressStatusCount : 0, averageHours: newCompleted > 0 ? processingHours / newCompleted : 0 }
+  return {
+    newReceived,
+    newCompleted,
+    received,
+    assigned,
+    inProgress,
+    completed,
+    active: received + assigned + inProgress,
+    completionRate: newReceived > 0 ? (newCompleted / newReceived) * 100 : 0,
+    averageHours: newCompleted > 0 ? processingHours / newCompleted : 0,
+  }
 }
 
 const formatDate = (value: string) => dateFormat.format(new Date(`${value}T00:00:00`))
 const percent = (value: number, max: number) => `${Math.max(18, Math.round((value / max) * 100))}%`
-const statusAriaLabel = (item: DailyStatistic) => `완료 ${item.completedStatusCount}건, 처리 중 ${item.inProgressStatusCount}건, 배정 ${item.assignedStatusCount}건, 접수 ${item.receivedStatusCount}건`
+const statusAriaLabel = (summary: ReturnType<typeof summarize>) => `완료 ${summary.completed}건, 처리 중 ${summary.inProgress}건, 배정 ${summary.assigned}건, 접수 ${summary.received}건`
