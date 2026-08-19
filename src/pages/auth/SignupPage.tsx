@@ -41,12 +41,16 @@ export function SignupPage() {
         <FormField id="phone" label="휴대전화번호" required><TextInput id="phone" value={form.phone} required placeholder="010-0000-0000" onChange={(event) => update('phone', event.target.value)} /></FormField>
       </div>
       <div className="krds-form-check">
-        <input type="checkbox" id="chk_2" checked={form.emailNotifyAgreed}
-               onChange={(event) => update('emailNotifyAgreed', event.target.checked)} />
-        <label className="check-line">
-          이메일 알림 수신에 동의합니다.
+        <input
+          type="checkbox"
+          id="emailNotifyAgreed"
+          name="emailNotifyAgreed"
+          checked={form.emailNotifyAgreed}
+          onChange={(event) => update('emailNotifyAgreed', event.target.checked)}
+        />
+        <label className="check-line" htmlFor="emailNotifyAgreed">
+          이메일 알림 수신에 동의합니다. <span className="optional">선택</span>
         </label>
-        <span className="optional"> 선택</span>
       </div>
       <FeedbackBanner>공무원 계정은 승인된 행정 절차를 통해 별도 발급되며 시민 회원가입으로 만들 수 없습니다.</FeedbackBanner>
       <div className="button-row">
