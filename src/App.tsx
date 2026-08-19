@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { AppShell } from './layouts/AppShell'
 import { GuidePage } from './pages/GuidePage'
 import { ComplaintApplicationProvider } from './features/complaint-application/ComplaintApplicationContext'
@@ -33,8 +33,10 @@ export function App() {
               <Route path="complete/:complaintId" element={<ComplaintCompletePage />} />
             </Route>
           </Route>
-          <Route path="my/complaints" element={<MyComplaintsPage />} />
-          <Route path="my/complaints/:complaintId" element={<ComplaintDetailPage />} />
+          <Route element={<RequireRole allowedRoles={['CITIZEN']}><Outlet /></RequireRole>}>
+            <Route path="my/complaints" element={<MyComplaintsPage />} />
+            <Route path="my/complaints/:complaintId" element={<ComplaintDetailPage />} />
+          </Route>
           <Route path="public-responses" element={<PublicResponsesPage />} />
           <Route path="public-responses/:responseId" element={<PublicResponseDetailPage />} />
           <Route path="officer/complaints" element={<OfficerComplaintsPage />} />

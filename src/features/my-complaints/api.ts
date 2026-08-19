@@ -9,3 +9,4 @@ export function getMyComplaints(query: MyComplaintQuery = {}) {
   return apiClient.get<MyComplaintListResponse>(`/complaints/my?${params}`)
 }
 export function getMyComplaint(complaintId: number) { return apiClient.get<MyComplaintDetail>(`/complaints/${complaintId}`) }
+export function downloadComplaintAttachment(complaintId: number, attachmentId: number) { return apiClient.download(`/complaints/${complaintId}/attachments/${attachmentId}`) }

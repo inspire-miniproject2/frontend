@@ -17,8 +17,8 @@ export const complaintHandlers = [
     const page = Math.max(0, Number(params.get('page') ?? 0)); const size = Math.max(1, Number(params.get('size') ?? 20))
     const filtered = myComplaints.filter((item) => (!keyword || item.title.toLowerCase().includes(keyword) || item.complaintNo.toLowerCase().includes(keyword)) && (!categoryCode || item.categoryCode === categoryCode) && (!status || item.currentStatus === status))
     const count = (value: string) => myComplaints.filter((item) => item.currentStatus === value).length
-    const content = filtered.slice(page * size, (page + 1) * size).map(({ content: _content, attachments: _attachments, statusHistories: _histories, notifyChannels: _channels, response: _response, ...item }) => item)
-    return HttpResponse.json({ success: true, data: { summary: { total: myComplaints.length, received: count('RECEIVED'), assigned: count('ASSIGNED'), inProgress: count('IN_PROGRESS'), completed: count('COMPLETED') }, content, page, size, totalElements: filtered.length, totalPages: Math.ceil(filtered.length / size) }, message: '내 민원 목록을 조회했습니다.' })
+    const content = filtered.slice(page * size, (page + 1) * size).map((item) => ({ complaintId: item.complaintId, complaintNo: item.complaintNo, title: item.title, categoryCode: item.categoryCode, currentStatus: item.currentStatus, assignedDepartmentName: item.assignedDepartmentName, assignedDepartmentId: item.assignedDepartmentId, assignedOfficerUserId: item.assignedOfficerUserId }))
+    return HttpResponse.json({ success: true, data: { summary: { total: myComplaints.length, received: count('RECEIVED'), assigned: count('ASSIGNED'), inProgress: count('IN_PROGRESS'), completed: count('COMPLETED') }, content, page, size, totalElements: filtered.length, totalPages: Math.ceil(filtered.length / size), hasNext: (page + 1) * size < filtered.length }, message: '내 민원 목록을 조회했습니다.' })
   }),
   http.get(`${apiUrl}/complaints/:complaintId`, async ({ params }) => {
     await delay(300)
