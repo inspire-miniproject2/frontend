@@ -2,9 +2,7 @@ name: Frontend CD
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
+  push:
     branches: [develop]
 
 concurrency:
@@ -17,45 +15,40 @@ permissions:
 
 jobs:
   publish:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push' &&
-      github.event.workflow_run.head_branch == 'develop')
     runs-on: ubuntu-latest
     outputs:
       image: ${{ steps.image.outputs.name }}
       tag: ${{ steps.image.outputs.short_sha }}
     steps:
-      - name: Resolve source revision
-        id: source
-        shell: bash
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          WORKFLOW_RUN_SHA: ${{ github.event.workflow_run.head_sha }}
-          CURRENT_SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          if [[ "$EVENT_NAME" == "workflow_run" ]]; then
-            echo "sha=$WORKFLOW_RUN_SHA" >> "$GITHUB_OUTPUT"
-          else
-            echo "sha=$CURRENT_SHA" >> "$GITHUB_OUTPUT"
-          fi
-
       - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
         with:
-          ref: ${{ steps.source.outputs.sha }}
+          version: 11.19.0
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Verify source
+        env:
+          VITE_ENABLE_MOCKS: "false"
+          VITE_API_BASE_URL: /api/v1
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm typecheck
+          pnpm build
 
       - name: Resolve image coordinates
         id: image
         shell: bash
-        env:
-          SOURCE_SHA: ${{ steps.source.outputs.sha }}
         run: |
           set -euo pipefail
           owner="${GITHUB_REPOSITORY_OWNER,,}"
           echo "name=ghcr.io/$owner/frontend" >> "$GITHUB_OUTPUT"
-          echo "short_sha=${SOURCE_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "short_sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@v3
 

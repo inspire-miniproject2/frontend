@@ -26,7 +26,7 @@ pnpm build
 ## CI/CD
 
 - Pull Request에서는 커밋 제목 규칙, 타입 검사, production build를 검증하고 `develop` push에서는 타입 검사와 build를 수행합니다.
-- `develop` CI가 성공하면 해당 커밋의 Docker 이미지를 GHCR에 게시하고 EC2 개발 서버에 배포합니다.
+- `develop` push 시 CD가 타입 검사와 production build를 다시 검증한 뒤 해당 커밋의 Docker 이미지를 GHCR에 게시하고 EC2 개발 서버에 배포합니다.
 - 수동 배포는 GitHub Actions의 `Frontend CD`에서 실행할 수 있습니다.
 - 배포 컨테이너는 백엔드의 `g-civil-network`에 연결되며 Nginx가 `/api/` 요청을 `gateway-service:8080`으로 전달합니다.
 - 배포 health check가 실패하면 직전 프론트엔드 이미지로 자동 복구합니다.
