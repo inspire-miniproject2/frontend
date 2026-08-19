@@ -24,6 +24,7 @@ export function LoginPage() {
       authSession.set(result)
       const requestedTarget = typeof location.state?.returnTo === 'string' ? location.state.returnTo : null
       const canReturn = requestedTarget?.startsWith('/complaints/new') && ['CITIZEN', 'ADMIN'].includes(result.user.role)
+      // const target = canReturn ? requestedTarget : result.user.role === 'ADMIN' ? '/admin/statistics' : result.user.role === 'OFFICER' ? '/officer/complaints' : '/my/complaints'
       const target = canReturn ? requestedTarget : result.user.role === 'ADMIN' ? '/admin/statistics' : result.user.role === 'OFFICER' ? '/officer/complaints' : '/my/complaints'
       navigate(target, { replace: true })
     } catch (reason) {
