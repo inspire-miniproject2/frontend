@@ -19,13 +19,13 @@ export function RequireRole({ allowedRoles, children }: { allowedRoles: UserRole
     if (handled.current) return
     if (!session) {
       handled.current = true
-      window.alert('민원 신청은 로그인 후 이용할 수 있습니다.')
+      window.alert('로그인 후 이용할 수 있습니다.')
       navigate('/login', { replace: true, state: { returnTo: `${location.pathname}${location.search}` } })
       return
     }
     if (!allowedRoles.includes(session.user.role)) {
       handled.current = true
-      window.alert('민원 신청은 민원인 또는 관리자 계정만 이용할 수 있습니다.')
+      window.alert('현재 계정으로 접근할 수 없는 화면입니다.')
       navigate(roleHome[session.user.role], { replace: true })
     }
   }, [allowedRoles, location.pathname, location.search, navigate, session])

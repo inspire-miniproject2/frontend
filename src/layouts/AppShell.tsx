@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { authSession } from '../features/auth/session'
+import { logout as requestLogout } from '../features/auth/api'
 import { useAuthSession } from '../features/auth/useAuthSession'
 import { BellIcon, JoinIcon, LoginIcon, LogoutIcon } from '../shared/ui/icons/HeaderIcons'
 import type { UserRole } from '../features/auth/types'
@@ -18,7 +19,10 @@ export function AppShell() {
   const session = useAuthSession()
   const navigate = useNavigate()
   const navigation = session ? roleMenus[session.user.role] : publicMenu
-  const logout = () => { authSession.clear(); navigate('/public-responses') }
+  const logout = async () => {
+    const refreshToken = session?.refreshToken
+    try { if (refreshToken) await requestLogout(refreshToken) } finally { authSession.clear(); navigate('/public-responses') }
+  }
   return <div className="app-shell">
     <a className="skip-link" href="#main-content">본문 바로가기</a>
     <div className="official-banner"><div className="container"><span aria-hidden="true">🇰🇷</span> 이 누리집은 공공민원처리 누리집입니다.</div></div>
