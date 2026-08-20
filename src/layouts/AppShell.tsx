@@ -48,7 +48,7 @@ export function AppShell() {
     <div className="official-banner"><div className="container"><span aria-hidden="true">🇰🇷</span> 이 누리집은 공공민원처리 누리집입니다.</div></div>
     <header className="site-header">
       <div className="container header-top">
-        <Link className="brand" to="public-responses" aria-label="민원온 홈"><span className="brand-mark" aria-hidden="true">◉</span>민원온</Link>
+        <Link className="brand" to="public-responses" aria-label="민원온 홈"><span className="brand-mark" aria-hidden="true">◉</span>민원온😊</Link>
         <div className="header-actions">
           {session ? <>
             <button className="header-action" type="button" onClick={logout}><LogoutIcon /><span>로그아웃</span></button>
