@@ -23,6 +23,7 @@ jobs:
           fetch-depth: 1
 
       - name: Validate commit title
+        if: github.event_name == 'pull_request'
         shell: bash
         run: |
           set -euo pipefail

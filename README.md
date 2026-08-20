@@ -165,9 +165,19 @@ pnpm build
 pnpm preview
 ```
 
-프로덕션 빌드 결과는 `dist/`에 생성됩니다.
+## CI/CD
 
-## UI·접근성 기준
+- Pull Request에서는 커밋 제목 규칙, 타입 검사, production build를 검증하고 `develop` push에서는 타입 검사와 build를 수행합니다.
+- `develop` CI가 성공하면 해당 커밋의 Docker 이미지를 GHCR에 게시하고 EC2 개발 서버에 배포합니다.
+- 수동 배포는 GitHub Actions의 `Frontend CD`에서 실행할 수 있습니다.
+- 배포 컨테이너는 백엔드의 `g-civil-network`에 연결되며 Nginx가 `/api/` 요청을 `gateway-service:8080`으로 전달합니다.
+- 배포 health check가 실패하면 직전 프론트엔드 이미지로 자동 복구합니다.
+
+GitHub Actions은 OIDC로 `GitHubActionsFrontendDeploy` IAM Role을 임시로 인수하고, Systems Manager Run Command로 배포합니다. AWS access key와 EC2 SSH private key를 GitHub Secrets에 저장하지 않습니다. IAM Role의 신뢰 정책은 `repo:inspire-miniproject2/frontend:environment:development`로 제한합니다.
+
+EC2에는 SSM Agent, Docker, 백엔드 Compose가 먼저 실행되어 `g-civil-network` 및 `gateway-service`가 존재해야 합니다. 또한 `ubuntu` 사용자로 GHCR `read:packages` 로그인이 1회 완료되어야 합니다. 보안 그룹은 사용자 접속용 TCP 80만 외부에 허용하며 GitHub Actions 배포를 위해 TCP 22를 열 필요가 없습니다.
+
+## 디자인 기준
 
 - KRDS React 컴포넌트와 디자인 토큰 우선 사용
 - 1440px 데스크톱과 1024px 축소 화면을 고려한 반응형 웹 구성
