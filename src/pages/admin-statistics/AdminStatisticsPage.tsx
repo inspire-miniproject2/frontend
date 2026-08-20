@@ -64,7 +64,7 @@ export function AdminStatisticsPage() {
   const departmentLabel = query.departmentId ? departments.find((item) => item.id === query.departmentId)?.name ?? `부서 ${query.departmentId}` : '전체 부서'
 
   return <>
-    <PageHeader title="민원처리 현황" description="Kafka 이벤트를 기반으로 집계된 일별 민원 처리 통계입니다." crumbs={['홈', '민원처리 현황']} />
+    <PageHeader title="민원처리 현황" description="기간별·일별 민원 처리 통계입니다." crumbs={['홈', '민원처리 현황']} />
     <form className="filter-bar stats-filter" onSubmit={submit}>
       <FormField id="fromDate" label="조회 시작일" required><TextInput id="fromDate" name="fromDate" type="date" defaultValue={query.fromDate} required /></FormField>
       <FormField id="toDate" label="조회 종료일" required><TextInput id="toDate" name="toDate" type="date" defaultValue={query.toDate} required /></FormField>
