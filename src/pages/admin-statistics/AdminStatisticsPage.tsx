@@ -1,5 +1,7 @@
 import { Button } from 'krds-react'
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { getDepartments } from '../../features/departments/api'
+import type { Department } from '../../features/departments/types'
 import { getDailyStatistics } from '../../features/statistics/api'
 import type { DailyStatistic, DailyStatistics, DailyStatisticsQuery } from '../../features/statistics/types'
 import { ApiError } from '../../shared/api/contracts'
@@ -18,7 +20,6 @@ const initialQuery: DailyStatisticsQuery = {
   fromDate: toDateInputValue(new Date(today.getFullYear(), today.getMonth(), 1)),
   toDate: toDateInputValue(today),
 }
-const departments = [{ id: 10, name: '교통정책과' }, { id: 20, name: '도로관리과' }]
 const numberFormat = new Intl.NumberFormat('ko-KR')
 const dateFormat = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium' })
 
@@ -28,6 +29,20 @@ export function AdminStatisticsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [validationError, setValidationError] = useState('')
+  const [departments, setDepartments] = useState<Department[]>([])
+  const [departmentsLoading, setDepartmentsLoading] = useState(true)
+  const [departmentsError, setDepartmentsError] = useState('')
+
+  useEffect(() => {
+    let active = true
+    getDepartments()
+      .then((result) => { if (active) setDepartments(result) })
+      .catch((reason) => {
+        if (active) setDepartmentsError(reason instanceof ApiError ? reason.message : '부서 목록을 불러오지 못했습니다.')
+      })
+      .finally(() => { if (active) setDepartmentsLoading(false) })
+    return () => { active = false }
+  }, [])
 
   useEffect(() => {
     let active = true
@@ -61,17 +76,20 @@ export function AdminStatisticsPage() {
   }
 
   const maxStatusCount = Math.max(1, summary.received, summary.assigned, summary.inProgress, summary.completed)
-  const departmentLabel = query.departmentId ? departments.find((item) => item.id === query.departmentId)?.name ?? `부서 ${query.departmentId}` : '전체 부서'
+  const departmentLabel = query.departmentId
+    ? departments.find((item) => item.departmentId === query.departmentId)?.departmentName ?? `부서 ${query.departmentId}`
+    : '전체 부서'
 
   return <>
     <PageHeader title="민원처리 현황" description="기간별·일별 민원 처리 통계입니다." crumbs={['홈', '민원처리 현황']} />
     <form className="filter-bar stats-filter" onSubmit={submit}>
       <FormField id="fromDate" label="조회 시작일" required><TextInput id="fromDate" name="fromDate" type="date" defaultValue={query.fromDate} required /></FormField>
       <FormField id="toDate" label="조회 종료일" required><TextInput id="toDate" name="toDate" type="date" defaultValue={query.toDate} required /></FormField>
-      <FormField id="departmentId" label="기관/부서"><SelectInput id="departmentId" name="departmentId" defaultValue={query.departmentId ?? ''}><option value="">전체 부서</option>{departments.map((department) => <option key={department.id} value={department.id}>{department.name}</option>)}</SelectInput></FormField>
+      <FormField id="departmentId" label="기관/부서"><SelectInput id="departmentId" name="departmentId" defaultValue={query.departmentId ?? ''} disabled={departmentsLoading}><option value="">{departmentsLoading ? '부서 불러오는 중' : '전체 부서'}</option>{departments.map((department) => <option key={department.departmentId} value={department.departmentId}>{department.departmentName}</option>)}</SelectInput></FormField>
       <Button type="submit" disabled={loading}>조회</Button>
     </form>
     {validationError && <FeedbackBanner tone="error">{validationError}</FeedbackBanner>}
+    {departmentsError && <FeedbackBanner tone="error">{departmentsError} 전체 부서 통계는 계속 조회할 수 있습니다.</FeedbackBanner>}
     {loading && <div className="complaint-loading"><div className="krds-spinner" role="status"><span className="sr-only">로딩 중</span>통계를 불러오는 중입니다.</div></div>}
     {error && <FeedbackBanner tone="error">{error}</FeedbackBanner>}
     {!loading && !error && data && content.length === 0 && <FeedbackBanner>선택한 기간과 부서에 집계된 통계가 없습니다.</FeedbackBanner>}
